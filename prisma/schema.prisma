@@ -1,0 +1,101 @@
+// Prisma Schema for Certificate Verification System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  passwordHash  String        @map("password_hash")
+  role          UserRole      @default(STUDENT)
+  institutionId String?       @map("institution_id")
+  institution   Institution?  @relation(fields: [institutionId], references: [id])
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  certificateRequests  CertificateRequest[] @relation("StudentRequests")
+  issuedCertificates  Certificate[]       @relation("IssuedCertificates")
+
+  @@map("users")
+}
+
+enum UserRole {
+  STUDENT
+  INSTITUTION_ADMIN
+  RECRUITER
+  ADMIN
+}
+
+model Institution {
+  id                       String        @id @default(uuid())
+  name                     String
+  algorandAddress          String        @unique @map("algorand_address")
+  algorandMnemonicEncrypted String?       @map("algorand_mnemonic_encrypted")
+  verified                 Boolean       @default(false)
+  createdAt                DateTime      @default(now()) @map("created_at")
+  updatedAt                DateTime      @updatedAt @map("updated_at")
+
+  users                User[]
+  certificateRequests  CertificateRequest[]
+  certificates         Certificate[]
+
+  @@map("institutions")
+}
+
+model CertificateRequest {
+  id                String              @id @default(uuid())
+  studentId         String              @map("student_id")
+  student           User                @relation("StudentRequests", fields: [studentId], references: [id])
+  institutionId     String              @map("institution_id")
+  institution       Institution         @relation(fields: [institutionId], references: [id])
+  studentName       String              @map("student_name")
+  studentType       String?            @map("student_type")
+  courseName        String              @map("course_name")
+  documentPath      String?             @map("document_path")
+  status            RequestStatus       @default(PENDING)
+  rejectionReason   String?             @map("rejection_reason")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+
+  @@map("certificate_requests")
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Certificate {
+  id                String            @id @default(uuid())
+  credentialId      String            @unique @map("credential_id")
+  studentId         String            @map("student_id")
+  student           User              @relation("IssuedCertificates", fields: [studentId], references: [id])
+  institutionId     String            @map("institution_id")
+  institution       Institution       @relation(fields: [institutionId], references: [id])
+  studentName       String            @map("student_name")
+  studentType       String?           @map("student_type")
+  courseName        String            @map("course_name")
+  issueDate         DateTime          @map("issue_date")
+  certificateHash   String            @map("certificate_hash")
+  algorandAssetId   BigInt?           @map("algorand_asset_id")
+  algorandTxId      String?           @map("algorand_tx_id")
+  certificateData   Json              @map("certificate_data")
+  status            CertificateStatus @default(ACTIVE)
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  @@map("certificates")
+}
+
+enum CertificateStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}

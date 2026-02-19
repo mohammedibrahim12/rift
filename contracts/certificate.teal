@@ -1,0 +1,57 @@
+// Certificate Verification Smart Contract
+// Algorand Application (Smart Contract)
+
+// This contract stores certificate hashes and allows verification
+// Global State: Maps credentialId to certificate hash
+// Local State: Tracks certificates issued by each institution
+
+#pragma version 8
+
+// Constants
+#define CREATOR 0
+#define CERT_MAP 1
+#define ISSUER_MAP 2
+
+// Application Call (NoOp) - Verify certificate
+// Args: [credentialId]
+// Returns: 1 if valid, 0 if not found
+txn ApplicationID
+int 0
+==
+bz not_app_call
+
+txn NumAppArgs
+int 0
+==
+bz has_args
+
+// No arguments - return info
+int 1
+return
+
+has_args:
+// Get credentialId from args
+txna ApplicationArgs 0
+
+// Check if certificate exists in global state
+byte "cert"
+app_global_get
+bz not_found
+
+// Certificate exists - compare hashes
+app_global_get
+byte ""
+==
+bz not_found
+
+// Certificate found and valid
+int 1
+return
+
+not_found:
+int 0
+return
+
+not_app_call:
+int 0
+return

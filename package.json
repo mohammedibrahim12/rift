@@ -1,0 +1,49 @@
+{
+  "name": "certificate-verification-system",
+  "version": "1.0.0",
+  "description": "Certificate Verification System using Algorand Blockchain",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "migrate": "prisma migrate dev",
+    "deploy-contract": "ts-node src/scripts/deployContract.ts"
+  },
+  "keywords": [
+    "certificate",
+    "verification",
+    "algorand",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "algosdk": "^2.9.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pdfkit": "^0.17.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/crypto-js": "^4.2.1",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.11",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.5",
+    "@types/pdfkit": "^0.17.5",
+    "@types/uuid": "^9.0.7",
+    "jest": "^29.7.0",
+    "prisma": "^5.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
