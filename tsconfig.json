@@ -14,8 +14,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "noImplicitAny": false,
-    "types": ["node"]
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
