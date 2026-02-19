@@ -3,7 +3,7 @@ services:
     name: certificate-verification
     env: node
     region: oregon
-    buildCommand: npm install --include=dev && npx prisma generate && npm run build && npm run build
+    buildCommand: npm install --include=dev --prefer-online && npx prisma generate && npm run build 
     startCommand: npm run start
     envVars:
       - key: NODE_ENV
