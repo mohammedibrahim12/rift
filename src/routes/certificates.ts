@@ -48,10 +48,10 @@ router.post('/request', authenticate, async (req: Request, res: Response): Promi
     const { institutionId, studentName, courseName, studentType } = req.body;
 
     // Validate required fields
-    if (!institutionId || !studentName || !courseName || !studentType) {
+    if (!institutionId || !studentName || !courseName) {
       res.status(400).json({
         success: false,
-        error: 'Institution ID, student name, course name, and student type are required'
+        error: 'Institution ID, student name, and course name are required'
       });
       return;
     }
@@ -655,7 +655,7 @@ router.post('/verify', async (req: Request, res: Response): Promise<void> => {
         const indexer = createIndexer();
         const result = await verifyCertificateOnChain(
           indexer,
-          Number(certificate.algorandAssetId),
+          certificate.algorandAssetId as bigint,
           certificate.certificateHash
         );
         blockchainVerified = result.isValid;

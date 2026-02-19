@@ -3,8 +3,8 @@ services:
     name: certificate-verification
     env: node
     region: oregon
-    buildCommand: npm install && npx prisma generate
-    startCommand: npm run dev
+    buildCommand: npm install && npx prisma generate && npm run build && npm run build
+    startCommand: npm run start
     envVars:
       - key: NODE_ENV
         value: production

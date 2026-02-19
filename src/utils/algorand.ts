@@ -9,10 +9,10 @@ import algosdk, {
 } from 'algosdk';
 
 // Configuration - these would come from environment variables
-const ALGO_SERVER = process.env.ALGO_SERVER || 'https://testnet-api.algorand.network';
-const ALGO_PORT = process.env.ALGO_PORT || 443;
-const ALGO_INDEXER_SERVER = process.env.ALGO_INDEXER_SERVER || 'https://testnet-idx.algorand.network';
-const ALGO_INDEXER_PORT = process.env.ALGO_INDEXER_PORT || 443;
+const ALGO_SERVER = 'https://node.testnet.algoexplorerapi.io';
+const ALGO_PORT = 443;
+const ALGO_INDEXER_SERVER = 'https://indexer.testnet.algoexplorerapi.io';
+const ALGO_INDEXER_PORT = 443;
 
 // Smart Contract App IDs
 const ALGO_APP_ID_TESTNET = parseInt(process.env.ALGO_APP_ID_TESTNET || '0');
@@ -166,13 +166,13 @@ export async function transferCertificateAsset(
  */
 export async function verifyCertificateOnChain(
   indexer: Indexer,
-  assetId: number,
+  assetId: bigint,
   expectedHash: string
 ): Promise<{ isValid: boolean; owner?: string; metadata?: any }> {
   
   try {
-    // Get asset information
-    const assetInfo = await indexer.lookupAssetByID(assetId).do();
+    // Get asset information - convert bigint to number for Algorand SDK
+    const assetInfo = await indexer.lookupAssetByID(Number(assetId)).do();
     
     if (!assetInfo || !assetInfo.asset) {
       return { isValid: false };
