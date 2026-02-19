@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: certificate-verification
+    env: node
+    region: oregon
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm run dev
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ALGO_NETWORK
+        value: testnet
+      - key: ALGO_APP_ID_TESTNET
+        sync: false
+      - key: INSTITUTION_MNEMONIC
+        sync: false
+    disk:
+      - name: uploads
+        mountPath: /app/uploads
+        sizeGB: 1
