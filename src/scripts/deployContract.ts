@@ -15,8 +15,8 @@ import * as dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-const ALGO_SERVER = process.env.ALGO_SERVER || 'https://testnet-api.algorand.network';
-const ALGO_PORT = process.env.ALGO_PORT || 443;
+const ALGO_SERVER = process.env.ALGO_SERVER || 'https://testnet-api.algonode.cloud';
+const ALGO_PORT = 443;
 const MNEMONIC = process.env.INSTITUTION_MNEMONIC || '';
 
 async function deployContract() {
@@ -29,16 +29,46 @@ async function deployContract() {
 
   console.log('🚀 Deploying Certificate Verification Smart Contract...\n');
 
-  // Create client
-  const client = new algosdk.Algodv2('', ALGO_SERVER, ALGO_PORT);
+  // Create client with API key
+  const apiKey = process.env.ALGO_API_KEY || '';
+  const client = new algosdk.Algodv2({ 'x-api-key': apiKey }, ALGO_SERVER, ALGO_PORT);
   
   // Get account from mnemonic
   const account = algosdk.mnemonicToSecretKey(MNEMONIC);
   console.log(`👤 Account: ${account.addr}`);
 
-  // Check account balance
-  const accountInfo = await client.accountInformation(account.addr).do();
-  console.log(`💰 Balance: ${algosdk.microalgosToAlgos(accountInfo.amount)} ALGO\n`);
+  // Function to wait between retries
+  const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // Check account balance with retry logic
+  let accountInfo;
+  const maxRetries = 10;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    try {
+      accountInfo = await client.accountInformation(account.addr).do();
+      break;
+    } catch (error: any) {
+      retryCount++;
+      if (error.rawResponse && error.rawResponse.includes('Daily free API quota exceeded')) {
+        console.log(`⚠️  Rate limit exceeded (attempt ${retryCount}/${maxRetries})`);
+        console.log('💤 Waiting 120 seconds before retrying...');
+        await wait(120000);
+      } else if (retryCount >= maxRetries) {
+        console.error('❌ Failed to connect to Algorand after multiple attempts');
+        console.error('Error:', error.message || error);
+        process.exit(1);
+      } else {
+        console.log(`⚠️  Connection error (attempt ${retryCount}/${maxRetries}):`, error.message || error);
+        await wait(10000);
+      }
+    }
+  }
+
+  if (accountInfo) {
+    console.log(`💰 Balance: ${algosdk.microalgosToAlgos(accountInfo.amount)} ALGO\n`);
+  };
 
   // Read TEAL contract
   const contractPath = path.join(__dirname, '../../contracts/certificate.teal');
